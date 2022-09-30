@@ -1,20 +1,88 @@
 import axios from 'axios';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
 
+  const [codigo, setCodigo] = useState();
+  const [descricao, setDescricao] = useState();
+  const [listaTarefa, setListaTarefa] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:3100/tarefa').then(resultado => {
-      console.log(resultado.data);
-    })
+    buscar();
   }, []);
 
+  function buscar(){
+    axios.get('http://localhost:3100/tarefa').then(resultado => {
+      console.log(resultado.data);
+      setListaTarefa(resultado.data);
+    });
+  }
+
+  function salvar(event){
+    event.preventDefault();
+    let tarefa = {
+      codigo: codigo,
+      descricao: descricao
+    };
+    console.log("tarefa ", tarefa);
+
+    axios.put('http://localhost:3100/tarefa', tarefa).then(()=>{
+    buscar();
+    });
+
+  }
+
+  function editar(codigo) {
+    axios.get('http://localhost:3100/tarefa/' + codigo).then((resultado)=>{
+      setCodigo(resultado.data.codigo);
+      setDescricao(resultado.data.descricao);
+      });
+  }
+
+  function excluir(codigo) {
+    axios.delete('http://localhost:3100/tarefa/' + codigo).then((resultado)=>{
+      buscar();
+      });
+  }
 
   return (
-    <div className="App">
-      <h3>TESTE</h3>
+    <div className="container">
+
+      <form onSubmit={(event) => salvar(event)}>
+          <div className="mb-3">
+            <label className="form-label">Descrição</label>
+            <input type="text" className="form-control" value={descricao} onChange={(event) => setDescricao(event.target.value)} />
+          </div>
+
+          <button type="submit" className="btn btn-primary">Salvar</button>
+
+      </form>
+
+      <h3>Lista de Tarefa</h3>
+
+      <table className="table">
+        <thead>
+          <tr>
+            <td>Tarefa</td>
+            <td></td>
+          </tr>
+        </thead>
+
+        <tbody>
+          {
+            listaTarefa.map((tarefa, index) => (
+            <tr>
+              <td>{tarefa.descricao}</td>
+              <td>
+                <button type="button" className="btn btn-link" onClick={editar(tarefa.codigo)}>[editar]</button>
+                <button type="button" className="btn btn-link" onClick={excluir(tarefa.codigo)}>[excluir]</button>
+              </td>
+            </tr>
+            ))
+          }
+        </tbody>
+      </table>
     </div>
   );
 }

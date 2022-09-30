@@ -17,8 +17,10 @@ export class TarefaController{
         if (index >= 0) {
             this.tarefaLista[index].descricao = tarefa.descricao
         } else {
+            tarefa.codigo = Math.random().toString(36);
             this.tarefaLista.push(tarefa);
         }
+        console.log('tarefa ', this.tarefaLista);
         return "ok";
     }
 
