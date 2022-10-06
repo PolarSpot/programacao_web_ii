@@ -29,19 +29,22 @@ function App() {
 
     axios.put('http://localhost:3100/tarefa', tarefa).then(()=>{
     buscar();
+
+    setCodigo();
+    setDescricao();
     });
 
   }
 
-  function editar(codigo) {
-    axios.get('http://localhost:3100/tarefa/' + codigo).then((resultado)=>{
+  function editar(tarefa) {
+    axios.get(`http://localhost:3100/tarefa/${tarefa.codigo}`).then((resultado)=>{
       setCodigo(resultado.data.codigo);
       setDescricao(resultado.data.descricao);
       });
   }
 
-  function excluir(codigo) {
-    axios.delete('http://localhost:3100/tarefa/' + codigo).then((resultado)=>{
+  function excluir(tarefa) {
+    axios.delete(`http://localhost:3100/tarefa/${tarefa.codigo}`).then((resultado)=>{
       buscar();
       });
   }
@@ -72,11 +75,11 @@ function App() {
         <tbody>
           {
             listaTarefa.map((tarefa, index) => (
-            <tr>
+            <tr key={index}>
               <td>{tarefa.descricao}</td>
               <td>
-                <button type="button" className="btn btn-link" onClick={editar(tarefa.codigo)}>[editar]</button>
-                <button type="button" className="btn btn-link" onClick={excluir(tarefa.codigo)}>[excluir]</button>
+                <button type="button" className="btn btn-link" onClick={(event) => editar(tarefa)}>[editar]</button>
+                <button type="button" className="btn btn-link" onClick={(event) => excluir(tarefa)}>[excluir]</button>
               </td>
             </tr>
             ))
