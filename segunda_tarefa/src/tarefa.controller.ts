@@ -1,40 +1,37 @@
 import { Body, Controller, Get, Put, Param, Delete } from "@nestjs/common"
 import { ok } from "assert";
+import { Tarefa } from "./tarefa.entity";
+import { TarefaService } from "./tarefa.service";
 
 @Controller()
 export class TarefaController{
 
-    tarefaLista = [];
+    constructor(
+        private tarefaService: TarefaService
+    ){}
 
     @Get("/tarefa")
-    lestaTarefa(){
-        return this.tarefaLista;
+    async lestaTarefa(): Promise<Tarefa[]>{
+        return await this.tarefaService.findAll();
     }
 
     @Put("/tarefa")
-    salvarTarefa(@Body() tarefa){
-        let index = this.tarefaLista.findIndex(t => t.codigo == tarefa.codigo);
-        if (index >= 0) {
-            this.tarefaLista[index].descricao = tarefa.descricao
-        } else {
-            tarefa.codigo = Math.random().toString(36);
-            this.tarefaLista.push(tarefa);
-        }
-        console.log('tarefa ', this.tarefaLista);
+    async salvarTarefa(@Body() tarefa){
+        await this.tarefaService.salvar(tarefa);
         return "ok";
     }
 
     @Get("/tarefa/:codigo")
-    buscarPorCod(@Param() parametro){
+    async buscarPorCod(@Param() parametro): Promise<Tarefa>{
         console.log(parametro.codigo)
-        let tarefa = this.tarefaLista.find(tarefa => tarefa.codigo == parametro.codigo);
-        return tarefa;
+
+        return await this.tarefaService.findById(parametro.codigo);
     }
 
     @Delete("/tarefa/:codigo")
-    excluirTarefa(@Param() parametro){
-        let index = this.tarefaLista.findIndex(tarefa => tarefa.codigo == parametro.codigo);
-        this.tarefaLista.splice(index, 1);
+    async excluirTarefa(@Param() parametro){
+        
+        await this.tarefaService.excluir(parametro.codigo)
         return "ok";
     }
 }
